@@ -49,15 +49,16 @@ class SpaceTrackDownloader:
         identifiers_str = ",".join(identifiers)
         start_str = start.strftime(self.URL_DATE_FORMAT)
         end_str = end.strftime(self.URL_DATE_FORMAT)
-        query = os.path.join(
-            self.URL_BASE,
+        
+        query = "/".join([
+            self.URL_BASE.rstrip("/"),
             "basicspacedata/query",
-            "class/gp_history/",
+            "class/gp_history",
             f"NORAD_CAT_ID/{identifiers_str}",
             "orderby/EPOCH%20ASC",
             f"EPOCH/{start_str}--{end_str}",
             "format/json",
-        )
+        ])
 
         # Authenticate if not authenticated
         if not self.authenticated:
@@ -98,7 +99,7 @@ class SpaceTrackDownloader:
 
     # URLs
     URL_BASE = "https://www.space-track.org/"
-    URL_AUTH = os.path.join(URL_BASE, "ajaxauth/login")
+    URL_AUTH = URL_BASE.rstrip("/") + "/ajaxauth/login"
 
     # Formats
     URL_DATE_FORMAT = "%Y-%m-%d"
