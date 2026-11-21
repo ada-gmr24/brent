@@ -6,9 +6,18 @@
 # Standard imports
 import os
 import sys
+import shutil
 
 # Load paths
 from . import paths
+
+# Register MinGW runtime DLL directory on Windows
+if os.name == "nt":
+    compiler = shutil.which("gfortran")
+    if compiler is not None:
+        _mingw_dll_directory = os.add_dll_directory(
+            os.path.dirname(compiler)
+        )
 
 # Orekit imports
 import orekit
