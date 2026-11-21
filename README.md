@@ -30,7 +30,8 @@ The table below outlines the main components and usage descriptions offered by B
 | &nbsp;&nbsp;↳ [`io/`](brent/io/) | Input/output handling and data serialisation utilities. |
 | &nbsp;&nbsp;↳ [`util/`](brent/util/) | General-purpose utilities and helper functions. |
 | [`data/`](data/) | Local datasets and supporting files. |
-| [`docs/`](docs/) | Documentation on dataset retrievals. |
+| [`docs/`](docs/) | 
+| [`docs/`](docs/) | Documentation covering [data retrieval](docs/data-retrieval.md) and the [2025 dataset inventory](docs/dataset-summary.md). |
 | [`experiments/`](experiments/) | Jupyter notebooks with experimental analyses. |
 | [`external/`](external/) | External dependencies, including [`thalassa/`](external/thalassa/). |
 | [`input/`](input/) | Example JSON configurations for [CDDIS](input/cddis.json.example), [Space-Track](input/space_track.json.example), [synthetic TLE generation](input/stle.json.example), and [parameter sweeps](input/sweep.json.example). |
