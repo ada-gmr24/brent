@@ -37,7 +37,7 @@ The table below outlines the main components and usage descriptions offered by B
 | [`main.py`](main.py) | Main command-line entry point, responsible for selecting and executing applications. |
 
 
-### Installation
+## Installation
 
 The following command can be used to clone the repository and its submodules:
 ```
@@ -56,7 +56,7 @@ conda env create -f environment.yml
 conda activate brent
 ```
 
-### Usage
+## Usage
 
 The main script used with BRENT is `main.py` which is the entry point for various applications in the `./apps/` directory. Many of these use configuration files with examples provided in the `./input/` directory.
 
@@ -99,5 +99,5 @@ The app reads the final single-object `tle_fit` pickle and the original TLE hist
 
 The output is `<run>_residuals.csv` in the fit directory; use `-o path/to/residuals.csv` to choose another file. Columns contain UTC epochs, MJD UTC, and the six RIC components of **THALASSA minus TLE**, with position in metres and velocity in m/s. Each TLE is evaluated at its own epoch using the same SGP4 and TEME-to-GCRF conversion as `tle_fit`. RIC axes come from that TLE's osculating state. Both position and velocity differences are rotated onto those axes; velocity columns are inertial velocity differences expressed in RIC, without a rotating-frame derivative term. This residual sign is opposite to the fit's stored `z_final`.
 
-### License
+## License
 This project is licensed under the MIT License.
