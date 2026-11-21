@@ -9,6 +9,7 @@ import multiprocessing as mp
 import os.path
 from string import Template
 from typing import List, Tuple
+from urllib.parse import urljoin
 
 # Third-party imports
 import pandas as pd
@@ -116,7 +117,7 @@ class FilepathGenerator:
         url_root = self.url_root_template.substitute(**kwargs)
 
         # Create URL and output filepath
-        url = os.path.join(url_root, filename)
+        url = urljoin(url_root.rstrip("/") + "/", filename)
         output_filepath = os.path.join(self.output_directory, filename)
 
         # Return filepaths object
