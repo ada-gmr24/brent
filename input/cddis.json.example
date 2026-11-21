@@ -4,11 +4,11 @@
     "filename_template": "${provider}.orb.${name}.${y}${m}${d}.v80.sp3.gz",
     "url_root_template": "https://cddis.nasa.gov/archive/slr/products/orbits/TRF/${name}/${Y}/${y}${m}${d}/",
     "providers": [
-        "esa"
+        "ilrsa"
     ],
-    "name": "lageos1",
-    "start": "2025-01-01",
+    "name": "etalon1",
+    "start": "2025-01-04",
     "end": "2025-12-31",
     "frequency": 7,
-    "output_directory": "./download/lageos1/"
+    "output_directory": "./download/etalon1/"
 }
