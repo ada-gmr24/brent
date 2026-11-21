@@ -1,6 +1,6 @@
 {
-    "username": "<CDDIS username>",
-    "password": "<CDDIS password>",
+    "username": "gabriella8080",
+    "password": "Earthdata*1234",
     "filename_template": "${provider}.orb.${name}.${y}${m}${d}.v80.sp3.gz",
     "url_root_template": "https://cddis.nasa.gov/archive/slr/products/orbits/${name}/${Y}/${y}${m}${d}/",
     "providers": [
