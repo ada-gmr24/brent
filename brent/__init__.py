@@ -24,14 +24,7 @@ import orekit
 from orekit.pyhelpers import setup_orekit_curdir
 
 # Initialise Orekit. Suppress macOS OpenJDK stack-guard warnings emitted at VM startup.
-stderr_fd = os.dup(sys.stderr.fileno())
-try:
-	with open(os.devnull, "w") as null:
-		os.dup2(null.fileno(), sys.stderr.fileno())
-		vm = orekit.initVM()
-finally:
-	os.dup2(stderr_fd, sys.stderr.fileno())
-	os.close(stderr_fd)
+orekit.initVM()
 setup_orekit_curdir(paths.DATA_OREKIT_DIR)
 
 # Add PyTHALASSA to path

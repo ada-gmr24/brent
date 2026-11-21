@@ -76,9 +76,8 @@ class TLEPropagator(Propagator):
         return np.abs(t1 - t2) > self.expiry
 
     def _propagate_forward(self, date, frame=Constants.DEFAULT_ECI):
-        # Find preceeding index
-        indices = self.epochs > date
-        idx = np.argmax(indices) - 1
+        # Find the most recent TLE at or before the requested date
+        idx = np.searchsorted(self.epochs, date, side="right") - 1
         idx = np.clip(idx, 0, len(self.epochs) - 1)
 
         # Extract epoch
