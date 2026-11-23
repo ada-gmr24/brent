@@ -747,6 +747,7 @@ class DeepSpace:
 
         # Return if no resonance
         if out.irez == 0:
+            self.dsinit_out = out
             return out
 
         aonv = (out.nm / xke) ** x2o3
