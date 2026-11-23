@@ -13,7 +13,7 @@ figures_path.mkdir(parents = True, exist_ok = True)
 
 # Choosing start and end plotting date:
 start_date = "2025-01-01"
-end_date = "2026-01-01"  # excluded
+end_date = "2025-02-01"  # excluded
 start = pd.Timestamp(start_date)
 end = pd.Timestamp(end_date)
 
@@ -34,12 +34,12 @@ elements = {
 }
 
 for symbol, (name, unit, mean_col, osc_col) in elements.items():
-    fig, ax = plt.subplots(figsize=(12, 4))
+    fig, ax = plt.subplots(figsize=(12, 6))
     # Use points for angular elements to avoid 360-degree wrap lines:
-    if symbol in ["raan", "omega", "theta"]:  # angles
-        ax.scatter(osc_df["epoch_utc"], osc_df[osc_col], s=2, color="deeppink", alpha=0.5,
+    if symbol in ["raan"]:  # angles
+        ax.scatter(osc_df["epoch_utc"], osc_df[osc_col], color="deeppink", s=2,
             label="Osculating")
-        ax.scatter(mean_df["epoch_utc"], mean_df[mean_col], s=5, color="indigo",
+        ax.scatter(mean_df["epoch_utc"], mean_df[mean_col], color="indigo", s=5,
             label="TLE mean")
     else:  # non-angular
         ax.plot(osc_df["epoch_utc"], osc_df[osc_col], color="deeppink", linewidth=0.7,
@@ -52,11 +52,15 @@ for symbol, (name, unit, mean_col, osc_col) in elements.items():
     ax.set_ylabel(f"{name} [{unit}]" if unit else name)  # iterate over elements
     ax.set_xlabel("Epoch")
     ax.grid(alpha=0.25)
-    ax.legend()
+    ax.legend(loc = "best")
     # fixing x-labels
-    month_interval = 2 if (end - start).days > 180 else 1
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=month_interval))
+    #month_interval = 2 if (end - start).days > 180 else 1
+    #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=month_interval))
+    #ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
+    day_interval = 2
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=day_interval))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
     # Forcing start - end date for x-axis
     ax.set_xlim(start, end)
     ax.margins(x=0)
