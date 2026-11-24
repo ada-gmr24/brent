@@ -18,12 +18,12 @@ satellites = {
     "Etalon 2": "etalon2",
 }
 
-# Reference sinusoid parameters (one per satellite):
+# Approximate sinusoidal parameters from the plots
 sinusoids = [
-    {"amplitude": 5, "period_days": 60, "phase_deg": 0, "offset": 0},  # LAGEOS-1
-    {"amplitude": 8, "period_days": 90, "phase_deg": 45, "offset": 0},  # LAGEOS-2
-    {"amplitude": 10, "period_days": 120, "phase_deg": 90, "offset": 0},  # Etalon 1
-    None  # Etalon 2
+    {"amplitude": 0.30, "period_days": 27.6,   "phase_deg": 110, "offset": -0.05},  # LAGEOS-1
+    {"amplitude": 0.55, "period_days": 13.15, "phase_deg": -45, "offset": 0.0},    # LAGEOS-2
+    {"amplitude": 1.10, "period_days": 27.6,   "phase_deg": 90,  "offset": 0.0},    # Etalon 1
+    {"amplitude": 1.65, "period_days": 27.5,   "phase_deg": 90,  "offset": 0.0}     # Etalon 2
 ]
 
 # Create four vertically stacked subplots:
@@ -57,12 +57,12 @@ for ax, (name, folder), params in zip(axes, satellites.items(), sinusoids):
         # Calculate sinusoid
         sinusoid = (params["amplitude"]*np.sin(2 * np.pi * t / params["period_days"]
                                                + np.deg2rad(params["phase_deg"])) + params["offset"])
-        ax.plot(dates, sinusoid, color="deeppink", linewidth=1.2, linestyle="--")
+        ax.plot(dates, sinusoid, color="deeppink", linewidth=1.5)
     ax.set_title(name, fontsize=11)
     ax.set_ylabel(r"$\Delta r_s$ [km]")
     ax.grid(alpha=0.25)
     ax.axhline(0, color="indigo", linewidth=0.5)
-    ax.legend(loc = "best")
+    # ax.legend(loc = "best")
 
 # Six date labels:
 months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
