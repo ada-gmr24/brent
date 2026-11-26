@@ -392,6 +392,96 @@ class DeepSpace:
 
         self.dscom_out = out
 
+    #######################################################
+    # Change 1: Hujsak lunisolar phase functions
+    #######################################################
+
+    def _hujsak_f_terms(self, gamma_x, f_x, e_x, e0):
+        """
+        Computing full Hujsak lunisolar long-period phase functions F1-F4.
+
+        These functions describe periodic effects of solar/lunar gravitational
+        perturbations and are used to calculate corrections to the satellite's
+        orbital elements.
+
+        Args:
+            gamma_x (float): Mean anomaly of the Sun or Moon [rad].
+            f_x (float): Corrected third-body anomaly [rad].
+            e_x (float): Eccentricity of the Sun's or Moon's orbit.
+            e0 (float): Satellite eccentricity at the TLE epoch.
+
+        Returns:
+            tuple[float, float, float, float]: Hujsak's F1, F2, F3, F4
+            phase functions.
+        """
+        sinf = np.sin(f_x)
+        cosf = np.cos(f_x)
+        delta = f_x - gamma_x  # intermediate variable for F1
+
+        f1 = (0.5 * sinf * cosf + 0.5 * delta + e_x * (sinf - sinf**3 / 3))
+        f2 = 0.5 * sinf**2 - 0.25 - e_x * cosf**3 / 3
+        # Breaking F1 = -F3 assumption:
+        f3 = (-0.5 * sinf * cosf + 0.5 * delta + e_x * sinf**3 / 3)
+        f4 = -(2 + 3 * e0**2) * (f1 + f3)
+
+        return f1, f2, f3
+
+    #######################################################
+    # Change 2 & 3: Replace 5 per-body corrections
+    #######################################################
+
+
+    def _hujsak_periodic_corrections(self, gamma_x, f_x, e_x, solar):
+        """
+        Compute 5 long-period lunisolar orbital-element corrections
+        using full expressions from Hujsak (1979).
+
+        Args:
+            gamma_x (float): Mean anomaly of the perturbing body [rad].
+            f_x (float): Corrected anomaly of the perturbing body [rad].
+            e_x (float): Orbital eccentricity of the perturbing body.
+            solar (bool): True for solar corrections, False for lunar corrections.
+
+        Returns:
+            tuple[float, float, float, float, float]:
+                pe: Correction to satellite eccentricity [-].
+                pinc: Correction to satellite inclination [rad].
+                pl: Correction to satellite mean anomaly [rad].
+                pgh: Combined perigee-node correction [rad].
+                ph: Inclination-weighted node correction [rad].
+        """
+        out = self.dscom_out
+        f1, f2, f3 = self._hujsak_f_terms(gamma_x, f_x, e_x, out.em)
+
+        # Retrieve pre-calculated lunar/solar geometric + amplitude coefficients:
+        if solar:
+            s = (out.ss1, out.ss2, out.ss3, out.ss4, out.ss5, out.ss6, out.ss7)
+            z = (out.sz1, out.sz2, out.sz3, out.sz11, out.sz12, out.sz13,
+                    out.sz21, out.sz22, out.sz23, out.sz31, out.sz32, out.sz33)
+        else:
+            s = (out.s1, out.s2, out.s3, out.s4, out.s5, out.s6, out.s7)
+            z = (out.z1, out.z2, out.z3, out.z11, out.z12, out.z13,
+                    out.z21, out.z22, out.z23,out.z31, out.z32, out.z33)
+
+        # Unpack selected third-body geometric + amplitude coefficients:
+        s1, s2, s3, s4, s5, s6, s7 = s
+        z1, z2, z3, z11, z12, z13, z21, z22, z23, z31, z32, z33 = z
+        f13 = f1 + f3
+
+        # Eccentricity correction:
+        pe = 2*s1 * (0.5*(s5 - s7)*f1 + s6*f2 + 0.5*(s5 + s7)*f3)
+        # Inclination correction:
+        pinc = 2*s2 * (z11*f1 + z12*f2 + z13*f3)
+        # Mean anomaly correction:
+        pl = -2*s3 * (z1*f1 + z2*f2 + z3*f3 - (7 + 3*out.emsq)*f13)
+        # Perigee-node combined correction:
+        pgh = 2*s4 * (z31*f1 + z32*f2 + z33*f3 - 3*f13)
+        # Node correction:
+        ph = -2*s2 * (z21*f1 + z22*f2 + z23*f3)
+
+        return pe, pinc, pl, pgh, ph
+
+
     def dpper(self, t: float, incl_tol: float = 0.2):
         """Deep space long period periodic contributions to mean elements.
 
@@ -414,40 +504,15 @@ class DeepSpace:
         # Constants
         zns, zes, znl, zel = 1.19459e-5, 0.01675, 1.5835218e-4, 0.0549
 
-        # Extract variables
-        ee2, e3 = self.dscom_out.ee2, self.dscom_out.e3
-        se2, se3 = self.dscom_out.se2, self.dscom_out.se3
-        si2, si3 = self.dscom_out.si2, self.dscom_out.si3
-        sl2, sl3, sl4 = self.dscom_out.sl2, self.dscom_out.sl3, self.dscom_out.sl4
-        sgh2, sgh3, sgh4 = self.dscom_out.sgh2, self.dscom_out.sgh3, self.dscom_out.sgh4
-        sh2, sh3 = self.dscom_out.sh2, self.dscom_out.sh3
-        xi2, xi3 = self.dscom_out.xi2, self.dscom_out.xi3
-        xl2, xl3, xl4 = self.dscom_out.xl2, self.dscom_out.xl3, self.dscom_out.xl4
-        xgh2, xgh3, xgh4 = self.dscom_out.xgh2, self.dscom_out.xgh3, self.dscom_out.xgh4
-        xh2, xh3 = self.dscom_out.xh2, self.dscom_out.xh3
-        zmol, zmos = self.dscom_out.zmol, self.dscom_out.zmos
+        # Solar long-period corrections:
+        gamma_s = self.dscom_out.zmos + zns * t
+        f_s = gamma_s + 2 * zes * np.sin(gamma_s)
+        ses, sis, sls, sghs, shs = self._hujsak_periodic_corrections(gamma_s, f_s, zes, solar=True)
 
-        # Calculate time-varying periodics
-        zm = zmos + zns * t
-        zf = zm + 2 * zes * np.sin(zm)
-        sinzf = np.sin(zf)
-        f2 = 0.5 * sinzf**2 - 0.25
-        f3 = -0.5 * sinzf * np.cos(zf)
-        ses = se2 * f2 + se3 * f3
-        sis = si2 * f2 + si3 * f3
-        sls = sl2 * f2 + sl3 * f3 + sl4 * sinzf
-        sghs = sgh2 * f2 + sgh3 * f3 + sgh4 * sinzf
-        shs = sh2 * f2 + sh3 * f3
-        zm = zmol + znl * t
-        zf = zm + 2 * zel * np.sin(zm)
-        sinzf = np.sin(zf)
-        f2 = 0.5 * sinzf**2 - 0.25
-        f3 = -0.5 * sinzf * np.cos(zf)
-        sel = ee2 * f2 + e3 * f3
-        sil = xi2 * f2 + xi3 * f3
-        sll = xl2 * f2 + xl3 * f3 + xl4 * sinzf
-        sghl = xgh2 * f2 + xgh3 * f3 + xgh4 * sinzf
-        shll = xh2 * f2 + xh3 * f3
+        # Lunar long-period corrections:
+        gamma_l = self.dscom_out.zmol + znl * t
+        f_l = gamma_l + 2 * zel * np.sin(gamma_l)
+        sel, sil, sll, sghl, shll = self._hujsak_periodic_corrections(gamma_l, f_l, zel, solar=False)
 
         # Initialize periodics
         pe = ses + sel

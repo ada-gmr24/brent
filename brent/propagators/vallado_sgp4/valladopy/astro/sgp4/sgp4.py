@@ -719,7 +719,7 @@ class SGP4:
         # Check if deep space application
         if self.use_deep_space:
             # Update orbital elements
-            self.ds.set_mean_elems(em=em, inclm=inclm, nm=nm)
+            self.ds.set_mean_elems(em=em, inclm=inclm, nodem=nodem, argpm=argpm, nm=nm, mm=mm)
 
             # Add deep space contributions to mean elements for perturbing 3rd body
             self.ds.dspace(self.satrec, t, self.sgp4init_out.gsto)
