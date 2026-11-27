@@ -524,21 +524,10 @@ class DeepSpace:
         # Constants
         zns, zes, znl, zel = 1.19459e-5, 0.01675, 1.5835218e-4, 0.0549
 
-        # Keep SGP4 Solar long-period corrections:
-        out = self.dscom_out
-
-        gamma_s = out.zmos + zns * t
+        # Solar long-period corrections:
+        gamma_s = self.dscom_out.zmos + zns * t
         f_s = gamma_s + 2 * zes * np.sin(gamma_s)
-
-        sin_f_s = np.sin(f_s)
-        f2_s = 0.5 * sin_f_s**2 - 0.25
-        f3_s = -0.5 * sin_f_s * np.cos(f_s)
-
-        ses = out.se2 * f2_s + out.se3 * f3_s
-        sis = out.si2 * f2_s + out.si3 * f3_s
-        sls = out.sl2 * f2_s + out.sl3 * f3_s + out.sl4 * sin_f_s
-        sghs = out.sgh2 * f2_s + out.sgh3 * f3_s + out.sgh4 * sin_f_s
-        shs = out.sh2 * f2_s + out.sh3 * f3_s
+        ses, sis, sls, sghs, shs = self._hujsak_periodic_corrections(gamma_s, f_s, zes, solar=True)
 
         # Lunar long-period corrections:
         gamma_l = self.dscom_out.zmol + znl * t
