@@ -466,6 +466,26 @@ class DeepSpace:
         # Unpack selected third-body geometric + amplitude coefficients:
         s1, s2, s3, s4, s5, s6, s7 = s
         z1, z2, z3, z11, z12, z13, z21, z22, z23, z31, z32, z33 = z
+
+        # Implement Full-Amplitude Equation:
+        if solar:
+            GM_X = 1.327124400412794e11
+            A_X = 149597870.7
+            N_X = 1.19459e-5
+        else:
+            GM_X = 4902.800118
+            A_X = 384400.0
+            N_X = 1.5835218e-4
+
+        # C_X (60^2 factor due to seconds --> minutes):
+        C_X = (GM_X * 60**2)/(4 * A_X**3 * N_X * (1 - e_x**2)**1.5)
+
+        # Form local amplitude factors for the five periodic equations:
+        s3 = C_X / out.nm
+        s2 = -0.5 * s3 / out.rtemsq
+        s4 = s3 * out.rtemsq
+        s1 = -15 * out.em * s4
+
         f13 = f1 + f3
 
         # Eccentricity correction:
