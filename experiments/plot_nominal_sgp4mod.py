@@ -14,18 +14,18 @@ figures_path.mkdir(parents=True, exist_ok=True)
 
 # Load SP3 reference states:
 sp3 = pd.read_csv(
-    data_path / "states" / "lageos1_sp3_2025.csv",
+    data_path / "states" / "etalon1_sp3_2025.csv",
     parse_dates=["epoch_utc"]
 )
 
 # Load SGP4 baseline and Hujsak states:
 baseline = pd.read_csv(
-    comparison_path / "lageos1_sgp4_baseline_2025.csv",
+    data_path / "states" / "etalon1_tle_2025.csv",
     parse_dates=["epoch_utc"]
 )
 
 hujsak = pd.read_csv(
-    comparison_path / "lageos1_hujsak_nominal_cx_2025.csv",
+    comparison_path / "etalon1_hujsak_full_cx_2025.csv",
     parse_dates=["epoch_utc"]
 )
 
@@ -61,10 +61,10 @@ ax.plot(
 ax.plot(
     sp3["epoch_utc"], along_hujsak,
     color="deeppink", linewidth=0.8,
-    label=r"Hujsak (nominal $C_X$)"
+    label=r"Hujsak (modified $C_X$)"
 )
 
-ax.set_title("LAGEOS-1: SGP4 Baseline vs Hujsak")
+ax.set_title("Etalon-1: SGP4 Baseline vs Hujsak Full")
 ax.set_ylabel(r"$\Delta r_s$ [km]")
 ax.set_xlabel("Epoch [-]")
 ax.axhline(0, color="gray", linewidth=0.5)
@@ -80,7 +80,7 @@ ax.set_xlim(pd.Timestamp("2025-01-01"), pd.Timestamp("2026-01-01"))
 plt.tight_layout()
 
 # Save figure:
-output_file = figures_path / "lageos1_baseline_vs_hujsak_2025.png"
+output_file = figures_path / "etalon1_baseline_vs_hujsak_2025.png"
 plt.savefig(output_file, dpi=200)
 plt.close()
 
